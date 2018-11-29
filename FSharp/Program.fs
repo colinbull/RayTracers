@@ -293,8 +293,13 @@ type RayTracer(file, width, height, samples) =
 
 module Program = 
 
+    open System.Diagnostics
+
     [<EntryPoint>]
     let main(args) =
+        let sw = new Stopwatch()
+
+        sw.Start()
         let aliasingSamples = 100
         printfn "Starting"
         let scene = Scene.Random()
@@ -303,7 +308,9 @@ module Program =
         let tracer = new RayTracer("output.ppm", 800, 400, aliasingSamples)
            
         tracer.Render(Camera(90., 2.), scene)
-        printfn "Finished."
+
+        sw.Stop()
+        printfn "Finished in %f s" sw.Elapsed.TotalSeconds
         0
 
 

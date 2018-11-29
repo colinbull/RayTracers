@@ -262,6 +262,5 @@ wwwroot/
 temp/
 !localhost.publish.xml
 fix_file_store/
-!src/Gms.Web/Config/**/*.cer
-!src/Gms.Web/Config/**/*.pfx
+*.ppm
 

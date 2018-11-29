@@ -144,7 +144,7 @@ type Camera(origin, lowerLeftCorner, x, y) =
         let halfHeight = Math.Tan(theta/2.)
         let halfWidth = aspect * halfHeight
         new Camera(
-          Vector3.Zero,
+          Vector3.Create(0., 0.5, 0.),
           Vector3.Create(-halfWidth, -halfHeight, -1.0),
           Vector3.Create(2. * halfWidth, 0., 0.),
           Vector3.Create(0., 2. * halfHeight, 0.)
@@ -305,7 +305,7 @@ module Program =
         let scene = Scene.Random()
         printfn "Scene Generated"
 
-        let tracer = new RayTracer("output.ppm", 800, 400, aliasingSamples)
+        let tracer = new RayTracer("output.ppm", 200, 100, aliasingSamples)
            
         tracer.Render(Camera(90., 2.), scene)
 

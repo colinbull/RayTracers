@@ -25,81 +25,73 @@ type PPMFile(fileName:string, x, y, valueMap) =
             writer.Dispose()
             fileStream.Dispose()
 
-type Vector3 =
-    { x:float; y:float; z:float } 
-    
-    member x.R = x.x 
-    member x.G = x.y 
-    member x.B = x.z
-    
-    static member Zero = 
-        { x = 0.; y = 0.; z = 0. }
-    
-    static member One = 
-        { x = 1.; y = 1.; z = 1. }
-        
-    static member Create(?x,?y,?z) = 
-        { x = defaultArg x 0.; y = defaultArg y 0.; z = defaultArg z 0. }
+type Vector3(e0:float, e1:float, e2:float) =
 
-    static member Create(v) = 
-        { x = v; y = v; z = v }
+    member __.X = e0
+    member __.Y = e1
+    member __.Z = e2
     
-    member x.elementMap f = 
-        { x = f x.x; y = f x.y; z = f x.z }
+    static member Zero = Vector3(0.,0.,0.)
+    
+    static member One = Vector3(1.,1.,1.)
+        
+    static member Create(v) = Vector3(v,v,v)
+    
+    member x.elementMap f = Vector3(f x.X, f x.Y, f x.Z)
     
     member x.Length = 
-        sqrt(x.x*x.x + x.y*x.y + x.z*x.z) 
+        sqrt(x.X*x.X + x.Y*x.Y + x.Z*x.Z) 
     
     member x.LengthSquared = 
-        x.x*x.x + x.y*x.y + x.z*x.z
+        x.X*x.X + x.Y*x.Y + x.Z*x.Z
         
     member x.Unit = 
         let k = 1. / x.Length
-        { x = x.x * k; y = x.y * k; z = x.z * k }
-    
+        Vector3(x.X * k, x.Y * k, x.Z * k)
+   
     static member (+) (a:Vector3, b:Vector3) = 
-        { x = a.x + b.x; y = a.y + b.y; z = a.z + b.z }
+        Vector3(a.X + b.X,a.Y + b.Y, a.Z + b.Z)
         
     static member (+) (a:float, b:Vector3) = 
-        { x = a + b.x; y = a + b.y; z = a + b.z }
+        Vector3(a + b.X, a + b.Y, a + b.Z)
         
-    static member (+) (a, b:float) = 
-        { x = a.x + b; y = a.y + b; z = a.z + b }
+    static member (+) (a:Vector3, b:float) = 
+        Vector3(a.X + b, a.Y + b, a.Z + b)
         
     static member (-) (a:Vector3, b:Vector3) = 
-        { x = a.x - b.x; y = a.y - b.y; z = a.z - b.z }
+        Vector3(a.X - b.X, a.Y - b.Y, a.Z - b.Z)
         
     static member (-) (a:float, b:Vector3) = 
-        { x = a - b.x; y = a - b.y; z = a - b.z }
+        Vector3(a - b.X, a - b.Y, a - b.Z)
     
-    static member (-) (a, b:float) = 
-        { x = a.x - b; y = a.y - b; z = a.z - b }
+    static member (-) (a:Vector3, b:float) = 
+        Vector3(a.X - b, a.Y - b, a.Z - b)
         
     static member (*) (a:Vector3, b:Vector3) = 
-        { x = a.x * b.x; y = a.y * b.y; z = a.z * b.z }
+        Vector3(a.X * b.X, a.Y * b.Y, a.Z * b.Z)
         
     static member (*) (a:float, b:Vector3) = 
-        { x = a * b.x; y = a * b.y; z = a * b.z }
+        Vector3(a * b.X, a * b.Y, a * b.Z)
     
-    static member (*) (a, b:float) = 
-        { x = a.x * b; y = a.y * b; z = a.z * b }
+    static member (*) (a:Vector3, b:float) = 
+        Vector3(a.X * b, a.Y * b, a.Z * b)
         
     static member (/) (a:Vector3, b:Vector3) = 
-        { x = a.x / b.x; y = a.y / b.y; z = a.z / b.z }
+        Vector3(a.X / b.X,a.Y / b.Y, a.Z / b.Z)
         
     static member (/) (a:float, b:Vector3) = 
-        { x = a / b.x; y = a / b.y; z = a / b.z }
+        Vector3(a / b.X,a / b.Y, a / b.Z)
     
-    static member (/) (a, b:float) = 
-        { x = a.x / b; y = a.y / b; z = a.z / b }
+    static member (/) (a:Vector3, b:float) = 
+        Vector3(a.X / b, a.Y / b, a.Z / b)
         
     static member dotProduct (a:Vector3, b:Vector3) = 
-        a.x*b.x + a.y*b.y + a.z*b.z
+        a.X*b.X + a.Y*b.Y + a.Z*b.Z
         
     static member crossProduct (a:Vector3, b:Vector3) =
-        { x = a.y*b.z - a.z*a.y
-          y = -(a.x*b.z - a.z*b.x)
-          z = a.x*b.y - a.y*b.x }  
+        Vector3(a.Y*b.Z - a.Z*a.Y,
+                -(a.X*b.Z - a.Z*b.X),
+                a.X*b.Y - a.Y*b.X)
                   
     static member reflect(a:Vector3, b:Vector3) = 
         a - 2. * Vector3.dotProduct(a,b) * b 
@@ -121,7 +113,7 @@ type MaterialHit =
 
 [<Struct>]
 type RayHit =
-     { t: float; p:Vector3; normal:Vector3; material: Option<Material> } 
+     { t: float; p:Vector3; normal:Vector3; material: Material } 
 
 and [<AbstractClass>] Material() = 
     abstract Scatter : ray:Ray * hit:RayHit -> Option<MaterialHit>
@@ -144,14 +136,14 @@ type Camera(origin, lowerLeftCorner, x, y) =
         let halfHeight = Math.Tan(theta/2.)
         let halfWidth = aspect * halfHeight
         new Camera(
-          Vector3.Zero,
-          Vector3.Create(-halfWidth, -halfHeight, -1.0),
-          Vector3.Create(2. * halfWidth, 0., 0.),
-          Vector3.Create(0., 2. * halfHeight, 0.)
+          Vector3(0., 0.5, 0.),
+          Vector3(-halfWidth, -halfHeight, -1.0),
+          Vector3(2. * halfWidth, 0., 0.),
+          Vector3(0., 2. * halfHeight, 0.)
         )
           
      static member Default = 
-        new Camera(Vector3.Zero, Vector3.Create(x = 4.), Vector3.Create(y = 2.),  Vector3.Create(-2., -1., -1.))
+        new Camera(Vector3.Zero, Vector3(4., 0., 0.), Vector3(0., 2., 0.),  Vector3(-2., -1., -1.))
      
 
 
@@ -160,8 +152,8 @@ type Camera(origin, lowerLeftCorner, x, y) =
      
      
 
-let sphere(centre:Vector3, radius:float, mat:Material) = 
-    {new Surface with
+type Sphere(centre:Vector3, radius:float, mat:Material) = 
+     interface Surface with
         member x.IsHit (ray,tMin,tMax) =
             let oc = ray.Origin - centre 
             let a = Vector3.dotProduct(ray.Direction, ray.Direction)
@@ -178,7 +170,7 @@ let sphere(centre:Vector3, radius:float, mat:Material) =
                         t = temp 
                         p = p
                         normal = (p - centre) / radius 
-                        material = Some mat 
+                        material = mat 
                     }
                 else 
                     let temp = (-b + sqrt(discriminant)) / (2.0 * a) 
@@ -189,30 +181,32 @@ let sphere(centre:Vector3, radius:float, mat:Material) =
                             t = temp 
                             p = p
                             normal = (p - centre) / radius 
-                            material = Some mat 
+                            material = mat 
                         }
                     else None    
             else  None             
-    }
+    
 
-let metal (albedo:Vector3, fuzz) =
-    { new Material() with 
-        member x.Scatter(ray:Ray, hit:RayHit) = 
-            let reflected = Vector3.reflect(ray.Direction.Unit, hit.normal) + (x.RandomUnitInSphere() * fuzz)
-            let scattered = Ray(hit.p, reflected)
-            let length = Vector3.dotProduct(scattered.Direction, hit.normal)
-            if length > 0. 
-            then Some { attenuation = albedo; scatteredRay = scattered }
-            else None
-    } 
+type Metal(albedo:Vector3, fuzz) =
+    inherit Material() 
 
-let diffuse (albedo:Vector3) =          
-    { new Material() with 
-        member x.Scatter(ray:Ray, hit:RayHit) = 
-            let reflected = hit.p + hit.normal + x.RandomUnitInSphere()
-            let scattered = Ray(hit.p, reflected-hit.p)
-            Some { attenuation = albedo; scatteredRay = scattered }
-    }             
+    override x.Scatter(ray:Ray, hit:RayHit) = 
+        let reflected = Vector3.reflect(ray.Direction.Unit, hit.normal) + (x.RandomUnitInSphere() * fuzz)
+        let scattered = Ray(hit.p, reflected)
+        let length = Vector3.dotProduct(scattered.Direction, hit.normal)
+        if length > 0. 
+        then Some { attenuation = albedo; scatteredRay = scattered }
+        else None
+    
+
+type Diffuse(albedo:Vector3) =          
+    inherit Material() 
+
+    override x.Scatter(ray:Ray, hit:RayHit) = 
+        let reflected = hit.p + hit.normal + x.RandomUnitInSphere()
+        let scattered = Ray(hit.p, reflected-hit.p)
+        Some { attenuation = albedo; scatteredRay = scattered }
+                 
 
 type Scene(items:seq<Surface>) =
 
@@ -220,21 +214,21 @@ type Scene(items:seq<Surface>) =
         let rnd = new Random()
         let objects = ResizeArray<Surface>()
 
-        objects.Add(sphere (Vector3.Create(0.,-1000., 0.), 1000., diffuse(Vector3.Create(0.5,0.5, 0.5))))
+        objects.Add(Sphere (Vector3(0.,-1000., 0.), 1000., Diffuse(Vector3(0.5,0.5, 0.5))))
         let rng = [-11 .. 1 .. 11]
         let mutable i = 1;
         for a in  rng do
           for b in rng do
             let a = float a 
             let b = float b
-            let center = Vector3.Create(a-0.9*rnd.NextDouble(), 0.2, b+0.9*rnd.NextDouble())
+            let center = Vector3(a-0.9*rnd.NextDouble(), 0.2, b+0.9*rnd.NextDouble())
             let mat =
                 if (rnd.NextDouble() > 0.5)
-                then  metal (Vector3.Create(0.5 * (1. + rnd.NextDouble()),0.5 * ( 1. + rnd.NextDouble()),0.5 * (1. + rnd.NextDouble())), 0.5 * rnd.NextDouble())
-                else  diffuse (Vector3.Create(rnd.NextDouble() * rnd.NextDouble(),rnd.NextDouble() * rnd.NextDouble(),rnd.NextDouble() * rnd.NextDouble()))
+                then  Metal (Vector3(0.5 * (1. + rnd.NextDouble()),0.5 * ( 1. + rnd.NextDouble()),0.5 * (1. + rnd.NextDouble())), 0.5 * rnd.NextDouble()) :> Material 
+                else  Diffuse (Vector3(rnd.NextDouble() * rnd.NextDouble(),rnd.NextDouble() * rnd.NextDouble(),rnd.NextDouble() * rnd.NextDouble())) :> Material
                 
 
-            objects.Add(sphere (center, 0.2, mat))
+            objects.Add(Sphere (center, 0.2, mat))
           
         
         Scene(objects)
@@ -254,18 +248,20 @@ type Scene(items:seq<Surface>) =
 
 type RayTracer(file, width, height, samples) = 
 
+    let defaultColor = Vector3(0.5, 0.7, 1.0)
+
     let rec trace(ray:Ray, surface:Surface, depth:int) =
         match surface.IsHit(ray, 0.00001, Double.MaxValue) with 
         | Some hit -> 
             if depth < 50
             then 
-                match hit.material |> Option.bind (fun m -> m.Scatter(ray, hit)) with 
+                match hit.material.Scatter(ray, hit) with 
                 | Some m -> m.attenuation * (trace(m.scatteredRay, surface, depth + 1))
                 | None -> Vector3.Zero
             else Vector3.Zero              
         | _ -> 
-            let t = 0.5 * (ray.Direction.Unit.y + 1.)
-            ((1. - t) * Vector3.One) + (t * Vector3.Create(0.5, 0.7, 1.0))
+            let t = 0.5 * (ray.Direction.Unit.Y + 1.)
+            ((1. - t) * Vector3.One) + (t * defaultColor)
               
 
     member x.Render(camera:Camera, scene) = 
@@ -287,23 +283,30 @@ type RayTracer(file, width, height, samples) =
                 
                 col <- col / (float samples.Length)   
                 col <- col.elementMap sqrt
-                file.AddLine(col.R,col.G,col.B)
+                file.AddLine(col.X,col.Y,col.Z)
             printfn "Row: %d" y
 
 
 module Program = 
 
+    open System.Diagnostics 
+
     [<EntryPoint>]
     let main(args) =
-        let aliasingSamples = 100
+        let sw = new Stopwatch() 
+        
+        sw.Start()
+
         printfn "Starting"
         let scene = Scene.Random()
         printfn "Scene Generated"
 
-        let tracer = new RayTracer("output.ppm", 800, 400, aliasingSamples)
+        let tracer = new RayTracer("output.ppm", 200, 100, 100)
            
         tracer.Render(Camera(90., 2.), scene)
-        printfn "Finished."
+
+        sw.Stop()
+        printfn "Finished in %f s" sw.Elapsed.TotalSeconds
         0
 
 

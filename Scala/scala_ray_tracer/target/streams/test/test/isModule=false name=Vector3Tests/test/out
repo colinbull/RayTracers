@@ -1,0 +1,12 @@
+[0m[[0m[0minfo[0m] [0m[0m[32mVector3Tests:[0m[0m
+[0m[[0m[0minfo[0m] [0m[0m[32m- A one vector should all be one.[0m[0m
+[0m[[0m[0minfo[0m] [0m[0m[32m- A zero vector should all be zero.[0m[0m
+[0m[[0m[0minfo[0m] [0m[0m[32m- Plus operator does element wise addition of two vectors.[0m[0m
+[0m[[0m[0minfo[0m] [0m[0m[32m- Minus operator does element wise addition of two vectors.[0m[0m
+[0m[[0m[0minfo[0m] [0m[0m[32m- Multiply operator does element wise addition of two vectors.[0m[0m
+[0m[[0m[0minfo[0m] [0m[0m[32m- Divide operator does element wise addition of two vectors.[0m[0m
+[0m[[0m[0minfo[0m] [0m[0m[32m- Can compute the length of a 2 vector.[0m[0m
+[0m[[0m[0minfo[0m] [0m[0m[32m- Can compute the length^2 of a 2 vector.[0m[0m
+[0m[[0m[0minfo[0m] [0m[0m[32m- Can create a unit vector from a vector.[0m[0m
+[0m[[0m[0minfo[0m] [0m[0m[32m- Can compute the dot product of 2 vectors.[0m[0m
+[0m[[0m[0minfo[0m] [0m[0m[32m- Can compute the cross product of 2 vectors.[0m[0m

@@ -1,0 +1,4 @@
+[0m[[0m[31merror[0m] [0m[0mD:\Appdev\Playground\scala_ray_tracer\src\test\scala\Vector3Tests.scala:58:35: value toUnit is not a member of Vector3[0m
+[0m[[0m[31merror[0m] [0m[0m    val v = Vector3.create(3,3,3).toUnit()[0m
+[0m[[0m[31merror[0m] [0m[0m                                  ^[0m
+[0m[[0m[31merror[0m] [0m[0mone error found[0m

@@ -1,0 +1,4 @@
+[0m[[0m[31merror[0m] [0m[0mD:\Appdev\Playground\scala_ray_tracer\src\main\scala\Scene.scala:29:5: value update is not a member of List[Nothing][0m
+[0m[[0m[31merror[0m] [0m[0m    objects(0) = Sphere(Vector3(0,-1000, 0), 1000, Diffuse(0.5,0.5, 0.5))[0m
+[0m[[0m[31merror[0m] [0m[0m    ^[0m
+[0m[[0m[31merror[0m] [0m[0mone error found[0m

@@ -251,7 +251,7 @@ type RayTracer(file, width, height, samples) =
     let defaultColor = Vector3(0.5, 0.7, 1.0)
 
     let rec trace(ray:Ray, surface:Surface, depth:int) =
-        match surface.IsHit(ray, 0.00001, Double.MaxValue) with 
+        match surface.IsHit(ray, 0.001, Double.MaxValue) with 
         | Some hit -> 
             if depth < 50
             then 

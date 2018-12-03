@@ -1,0 +1,5 @@
+Classes x86                 - 50.054 secs
+Classes                     - 53.152 secs 
+Records                     - 55.225773 secs
+Struct Records (< 16 bytes) - 127.79847
+Struct Records              - 135.585017 secs 

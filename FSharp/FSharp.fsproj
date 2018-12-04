@@ -4,9 +4,16 @@
         <OutputType>Exe</OutputType>
         <TargetFrameworks>netcoreapp2.1; net472</TargetFrameworks>
     </PropertyGroup>
-
     <ItemGroup>
-        <Compile Include="Program_StructRecds.fs"/>
+        <PackageReference Include="BenchmarkDotNet" Version="0.11.3" />
+    </ItemGroup>
+    <ItemGroup>
+        <Compile Include="Classes.fs" />
+        <Compile Include="Recds.fs" />
+        <Compile Include="StructRecds_NoMethods.fs" />
+        <Compile Include="StructRecds.fs" />
+        <Compile Include="StructRecds32.fs" />
+        <Compile Include="Program.fs" />
     </ItemGroup>
 
 </Project>

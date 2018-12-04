@@ -1,4 +1,4 @@
-﻿// Learn more about F# at http://fsharp.org
+﻿namespace Recds 
 
 open System
 open System.IO 
@@ -25,9 +25,10 @@ type PPMFile(fileName:string, x, y, valueMap) =
             writer.Dispose()
             fileStream.Dispose()
 
-let nextDouble = 
-    let rand = new Random()
-    rand.NextDouble
+module Utils = 
+    let nextDouble = 
+        let rand = new Random()
+        rand.NextDouble
 
 type Vector3 =
     { mutable x:float; mutable y:float;  mutable z:float } 
@@ -128,7 +129,7 @@ and [<AbstractClass>] Material() =
     abstract Scatter : ray:Ray * hit:RayHit -> Option<MaterialHit>
     abstract RandomUnitInSphere : unit -> Vector3
     default x.RandomUnitInSphere() =
-        let newP() = Vector3.Create(2. * nextDouble() - 1.)
+        let newP() = Vector3.Create(2. * Utils.nextDouble() - 1.)
         let mutable p = newP()
         while p.LengthSquared >= 1. do 
             p <- newP()
@@ -159,31 +160,20 @@ type Camera(origin, lowerLeftCorner, x, y) =
          Ray(origin, lowerLeftCorner + u*x + v*y - origin)
      
      
-
-let sphere(centre:Vector3, radius:float, mat:Material) = 
-    {new Surface with
-        member x.IsHit (ray,tMin,tMax) =
-            let oc = ray.Origin - centre 
-            let a = Vector3.dotProduct(ray.Direction, ray.Direction)
-            let b = 2.0 * Vector3.dotProduct(oc, ray.Direction)
-            let c = Vector3.dotProduct(oc,oc) - (radius * radius)
-            let discriminant = b*b - 4.0*a*c  
-            if discriminant > 0. 
-            then  
-                let temp = (-b - sqrt(discriminant)) / (2.0 * a)  
-                if (temp < tMax) && (temp > tMin) 
+module Shapes = 
+    let sphere(centre:Vector3, radius:float, mat:Material) = 
+        {new Surface with
+            member x.IsHit (ray,tMin,tMax) =
+                let oc = ray.Origin - centre 
+                let a = Vector3.dotProduct(ray.Direction, ray.Direction)
+                let b = 2.0 * Vector3.dotProduct(oc, ray.Direction)
+                let c = Vector3.dotProduct(oc,oc) - (radius * radius)
+                let discriminant = b*b - 4.0*a*c  
+                if discriminant > 0. 
                 then  
-                    let p = ray.AtPoint(temp)
-                    Some { 
-                        t = temp 
-                        p = p
-                        normal = (p - centre) / radius 
-                        material = mat 
-                    }
-                else 
-                    let temp = (-b + sqrt(discriminant)) / (2.0 * a) 
+                    let temp = (-b - sqrt(discriminant)) / (2.0 * a)  
                     if (temp < tMax) && (temp > tMin) 
-                    then 
+                    then  
                         let p = ray.AtPoint(temp)
                         Some { 
                             t = temp 
@@ -191,36 +181,48 @@ let sphere(centre:Vector3, radius:float, mat:Material) =
                             normal = (p - centre) / radius 
                             material = mat 
                         }
-                    else None    
-            else  None             
-    }
+                    else 
+                        let temp = (-b + sqrt(discriminant)) / (2.0 * a) 
+                        if (temp < tMax) && (temp > tMin) 
+                        then 
+                            let p = ray.AtPoint(temp)
+                            Some { 
+                                t = temp 
+                                p = p
+                                normal = (p - centre) / radius 
+                                material = mat 
+                            }
+                        else None    
+                else  None             
+        }
 
-let metal (albedo:Vector3, fuzz) =
-    { new Material() with 
-        member x.Scatter(ray:Ray, hit:RayHit) = 
-            let reflected = Vector3.reflect(ray.Direction.Unit, hit.normal) + (x.RandomUnitInSphere() * fuzz)
-            let scattered = Ray(hit.p, reflected)
-            let length = Vector3.dotProduct(scattered.Direction, hit.normal)
-            if length > 0. 
-            then Some { attenuation = albedo; scatteredRay = scattered }
-            else None
-    } 
+module Materials = 
+    let metal (albedo:Vector3, fuzz) =
+        { new Material() with 
+            member x.Scatter(ray:Ray, hit:RayHit) = 
+                let reflected = Vector3.reflect(ray.Direction.Unit, hit.normal) + (x.RandomUnitInSphere() * fuzz)
+                let scattered = Ray(hit.p, reflected)
+                let length = Vector3.dotProduct(scattered.Direction, hit.normal)
+                if length > 0. 
+                then Some { attenuation = albedo; scatteredRay = scattered }
+                else None
+        } 
 
-let diffuse (albedo:Vector3) =          
-    { new Material() with 
-        member x.Scatter(ray:Ray, hit:RayHit) = 
-            let reflected = hit.p + hit.normal + x.RandomUnitInSphere()
-            let scattered = Ray(hit.p, reflected-hit.p)
-            Some { attenuation = albedo; scatteredRay = scattered }
-    }             
+    let diffuse (albedo:Vector3) =          
+        { new Material() with 
+            member x.Scatter(ray:Ray, hit:RayHit) = 
+                let reflected = hit.p + hit.normal + x.RandomUnitInSphere()
+                let scattered = Ray(hit.p, reflected-hit.p)
+                Some { attenuation = albedo; scatteredRay = scattered }
+        }             
 
 type Scene(items:seq<Surface>) =
 
-    static member Random() = 
-        let rnd = new Random()
+    static member Random(seed) = 
+        let rnd = new Random(seed)
         let objects = ResizeArray<Surface>()
 
-        objects.Add(sphere (Vector3.Create(0.,-1000., 0.), 1000., diffuse(Vector3.Create(0.5,0.5, 0.5))))
+        objects.Add(Shapes.sphere (Vector3.Create(0.,-1000., 0.), 1000., Materials.diffuse(Vector3.Create(0.5,0.5, 0.5))))
         let rng = [-11 .. 1 .. 11]
         let mutable i = 1;
         for a in  rng do
@@ -230,11 +232,11 @@ type Scene(items:seq<Surface>) =
             let center = Vector3.Create(a-0.9*rnd.NextDouble(), 0.2, b+0.9*rnd.NextDouble())
             let mat =
                 if (rnd.NextDouble() > 0.5)
-                then  metal (Vector3.Create(0.5 * (1. + rnd.NextDouble()),0.5 * ( 1. + rnd.NextDouble()),0.5 * (1. + rnd.NextDouble())), 0.5 * rnd.NextDouble())
-                else  diffuse (Vector3.Create(rnd.NextDouble() * rnd.NextDouble(),rnd.NextDouble() * rnd.NextDouble(),rnd.NextDouble() * rnd.NextDouble()))
+                then Materials.metal (Vector3.Create(0.5 * (1. + rnd.NextDouble()),0.5 * ( 1. + rnd.NextDouble()),0.5 * (1. + rnd.NextDouble())), 0.5 * rnd.NextDouble())
+                else Materials.diffuse (Vector3.Create(rnd.NextDouble() * rnd.NextDouble(),rnd.NextDouble() * rnd.NextDouble(),rnd.NextDouble() * rnd.NextDouble()))
                 
 
-            objects.Add(sphere (center, 0.2, mat))
+            objects.Add(Shapes.sphere (center, 0.2, mat))
           
         
         Scene(objects)
@@ -269,7 +271,6 @@ type RayTracer(file, width, height, samples) =
               
 
     member x.Render(camera:Camera, scene) = 
-        let rand = new Random()
         use file = new PPMFile(file, width, height, fun v -> (int (255.99 * v)))
         
         let rngY = [|file.Y .. -1 .. 1|]
@@ -280,38 +281,22 @@ type RayTracer(file, width, height, samples) =
             for x in rngX do
                 let mutable col = Vector3.Zero
                 for s in samples do 
-                    let i = ((float x) + rand.NextDouble()) / (float file.X)
-                    let j = ((float y) + rand.NextDouble()) / (float file.Y)
+                    let i = ((float x) + Utils.nextDouble()) / (float file.X)
+                    let j = ((float y) + Utils.nextDouble()) / (float file.Y)
                     let ray = camera.Ray(i,j)
                     col <- col + trace(ray, scene, 0) 
                 
                 col <- col / (float samples.Length)   
                 col <- col.elementMap sqrt
                 file.AddLine(col.R,col.G,col.B)
-            printfn "Row: %d" y
 
 
-module Program = 
+module Executor = 
 
-    open System.Diagnostics
-
-    [<EntryPoint>]
-    let main(args) =
-        let sw = new Stopwatch()
-
-        sw.Start()
-        let aliasingSamples = 100
-        printfn "Starting"
-        let scene = Scene.Random()
-        printfn "Scene Generated"
-
-        let tracer = new RayTracer("output.ppm", 200, 100, aliasingSamples)
-           
+    let run(seed, width, height, samples) =
+        let scene = Scene.Random(seed)
+        let tracer = new RayTracer("output_rcds.ppm", width, height, samples)  
         tracer.Render(Camera(90., 2.), scene)
-
-        sw.Stop()
-        printfn "Finished in %f s" sw.Elapsed.TotalSeconds
-        0
 
 
             

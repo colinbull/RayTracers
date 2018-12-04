@@ -1,3 +1,5 @@
+namespace Classes 
+
 open System
 open System.IO 
 
@@ -23,9 +25,10 @@ type PPMFile(fileName:string, x, y, valueMap) =
             writer.Dispose()
             fileStream.Dispose()
 
-let nextDouble = 
-    let rand = new Random()
-    rand.NextDouble
+module Utils = 
+    let nextDouble = 
+        let rand = new Random()
+        rand.NextDouble
 
 type Vector3(e0:float, e1:float, e2:float) =
 
@@ -117,7 +120,7 @@ and [<AbstractClass>] Material() =
     abstract Scatter : ray:Ray * hit:RayHit -> Option<MaterialHit>
     abstract RandomUnitInSphere : unit -> Vector3
     default x.RandomUnitInSphere() =
-        let newP() = Vector3.Create(2. * nextDouble() - 1.)
+        let newP() = Vector3.Create(2. * Utils.nextDouble() - 1.)
         let mutable p = Vector3.Zero
         while p.LengthSquared >= 1. do 
             p <- newP()
@@ -207,8 +210,8 @@ type Diffuse(albedo:Vector3) =
 
 type Scene(items:seq<Surface>) =
 
-    static member Random() = 
-        let rnd = new Random()
+    static member Random(seed) = 
+        let rnd = new Random(seed)
         let objects = ResizeArray<Surface>()
 
         objects.Add(Sphere (Vector3(0.,-1000., 0.), 1000., Diffuse(Vector3(0.5,0.5, 0.5))))
@@ -262,7 +265,6 @@ type RayTracer(file, width, height, samples) =
               
 
     member x.Render(camera:Camera, scene) = 
-        let rand = new Random()
         use file = new PPMFile(file, width, height, fun v -> (int (255.99 * v)))
         
         let rngY = [|file.Y .. -1 .. 1|]
@@ -273,35 +275,19 @@ type RayTracer(file, width, height, samples) =
             for x in rngX do
                 let mutable col = Vector3.Zero
                 for s in samples do 
-                    let i = ((float x) + rand.NextDouble()) / (float file.X)
-                    let j = ((float y) + rand.NextDouble()) / (float file.Y)
+                    let i = ((float x) + Utils.nextDouble()) / (float file.X)
+                    let j = ((float y) + Utils.nextDouble()) / (float file.Y)
                     let ray = camera.Ray(i,j)
                     col <- col + trace(ray, scene, 0) 
                 
                 col <- col / (float samples.Length)   
                 col <- col.elementMap sqrt
                 file.AddLine(col.X,col.Y,col.Z)
-            printfn "Row: %d" y
 
 
-module Program = 
+module Executor = 
 
-    open System.Diagnostics 
-
-    [<EntryPoint>]
-    let main(args) =
-        let sw = new Stopwatch() 
-        
-        sw.Start()
-
-        printfn "Starting"
-        let scene = Scene.Random()
-        printfn "Scene Generated"
-
-        let tracer = new RayTracer("output.ppm", 200, 100, 100)
-           
+    let run(seed, width, height, samples) =
+        let scene = Scene.Random(seed)
+        let tracer = new RayTracer("output_classes.ppm", width, height, samples)  
         tracer.Render(Camera(90., 2.), scene)
-
-        sw.Stop()
-        printfn "Finished in %f s" sw.Elapsed.TotalSeconds
-        0

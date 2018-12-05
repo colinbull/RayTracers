@@ -1,4 +1,4 @@
-#IncludeRegexLine: ^[ 	]*#[ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+#IncludeRegexLine: ^[ 	]*[#%][ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
 
 #IncludeRegexScan: ^.*$
 
@@ -6,7 +6,11 @@
 
 #IncludeRegexTransform: 
 
-/mnt/c/Appdev/Playground/RayTracers/C/main.c
-stdio.h
+C:/Appdev/Playground/RayTracers/C/vector3.c
+stdlib.h
 -
+vector3.h
+C:/Appdev/Playground/RayTracers/C/vector3.h
+
+C:/Appdev/Playground/RayTracers/C/vector3.h
 

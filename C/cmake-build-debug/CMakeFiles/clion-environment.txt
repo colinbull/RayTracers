@@ -1,4 +1,4 @@
-ToolSet: Ubuntu 18.04.1 LTS@C:\Users\colin\AppData\Local\Microsoft\WindowsApps\ubuntu.exe
+ToolSet: 15.0@C:\Program Files (x86)\Microsoft Visual Studio\2017\Professional
 Options: 
 
 Options:

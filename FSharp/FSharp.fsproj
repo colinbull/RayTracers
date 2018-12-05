@@ -6,9 +6,18 @@
         <ServerGarbageCollection>true</ServerGarbageCollection>
         <ConcurrentGarbageCollection>true</ConcurrentGarbageCollection>
     </PropertyGroup>
-
     <ItemGroup>
-        <Compile Include="Program.fs"/>
+        <PackageReference Include="BenchmarkDotNet" Version="0.11.3" />
+    </ItemGroup>
+    <ItemGroup>
+        <Compile Include="Classes.fs" />
+        <Compile Include="Recds.fs" />
+        <Compile Include="StructRecds_NoMethods.fs" />
+        <Compile Include="StructRecds.fs" />
+        <Compile Include="StructRecds32.fs" />
+        <Compile Include="StructRecds_AllStruct.fs" />
+        <Compile Include="StructRecds_AllStructNoCompareEquality.fs" />
+        <Compile Include="Program.fs" />
     </ItemGroup>
 
 </Project>
